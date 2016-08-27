@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Firebase emailVerified Bug Login</title>
+    <script src="https://www.gstatic.com/firebasejs/live/3.3/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/0.4.0/firebase-ui-auth.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+    <script>
+      var config = {
+        apiKey: "AIzaSyBBC4aLFUtPygp2pB25ouTYaE9VmUzKgoM",
+        authDomain: "email-verified-bug.firebaseapp.com",
+        databaseURL: "https://email-verified-bug.firebaseio.com"
+      };
+      var app = firebase.initializeApp(config);
+
+      var uiConfig = {
+        'signInSuccessUrl': '/',
+        'signInOptions': [
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ],
+        // Terms of service url.
+        'tosUrl': 'https://theagora.co/tos',
+        siteName: "Firebase emailVerified Bug"
+      };
+
+      var auth = app.auth();
+      var ui = new firebaseui.auth.AuthUI(auth);
+      ui.start('#firebaseui-auth-container', uiConfig);
+    </script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/0.4.0/firebase-ui-auth.css" />
+    <style>
+      body {
+        text-align: center;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Firebase emailVerified Bug Login</h2>
+    <div id="firebaseui-auth-container"></div>
+  </body>
+</html>

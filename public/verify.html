@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- This is a custom action handler for the email verification link --
+  -- that gets mailed to new users. It's not actually necessary for --
+  -- demonstration of the bug - that seems to happen the same way with --
+  -- the default action handler. -->
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Agora Ideas Email Verification</title>
+    <script src="https://www.gstatic.com/firebasejs/live/3.3/firebase.js"></script>
+    <script type="text/javascript">
+      var config = {
+        apiKey: "AIzaSyBBC4aLFUtPygp2pB25ouTYaE9VmUzKgoM",
+        authDomain: "email-verified-bug.firebaseapp.com",
+        databaseURL: "https://email-verified-bug.firebaseio.com"
+      };
+      // The start method will wait until the DOM is loaded.
+      var app = firebase.initializeApp(config);
+      var auth = app.auth();
+
+      function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+      }
+
+      function tellUser(message) {
+        document.getElementById('feedback').textContent = message;
+      }
+
+      function resend() {
+        auth.currentUser.sendEmailVerification();
+        tellUser('New verification email sent');
+      }
+
+      if (getParameterByName('mode') != 'verifyEmail') {
+        // Other actions are handled by default handler
+        window.location.href = window.location.origin + '/__/auth/action' + window.location.search;
+      } else if (getParameterByName('apiKey') != config.apiKey) {
+        tellUser('Verification URL is incorrect: bad API key.');
+      } else {
+        auth.onAuthStateChanged(function(user) {
+          if (!user) {
+            tellUser('You need to be logged in to verify.');
+            return;
+          }
+          auth.checkActionCode(getParameterByName('oobCode'))
+            .then(function(codeData) {
+              if (codeData.data.email != user.email)
+                return firebase.Promise.reject('This verification was meant for a different account.');
+              return auth.applyActionCode(getParameterByName('oobCode'));
+            })
+            .then(function(resp) {
+              tellUser('Your email address is now verified.');
+            })
+            .catch(function(error) {
+              tellUser(error);
+              document.getElementById('resend').style.display = 'block';
+            });
+        });
+      }
+    </script>
+    <style>
+      body {
+        text-align: center;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Agora Ideas Email Verification</h2>
+    <div id="feedback">Verifying...</div>
+    <div id="resend" style="display: none">
+      <button onclick="resend();">Resend email</button>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    "test": {
+      ".write": "auth != null && auth.token.email_verified == true"
+    }
+  }
+}
